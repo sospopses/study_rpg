@@ -11,6 +11,9 @@ import (
 // readLine читает строку целиком (с пробелами), убирая \n/\r и пробелы по краям
 func readLine(reader *bufio.Reader) string {
 	line, _ := reader.ReadString('\n')
+	if line == "STOP" {
+		panic("СТОП!!!")
+	}
 	return strings.TrimSpace(line)
 }
 
@@ -19,9 +22,12 @@ func readLine(reader *bufio.Reader) string {
 func readInt(reader *bufio.Reader) int {
 	for {
 		line := readLine(reader)
+		if line == "STOP" {
+			panic("СТОП!!!")
+		}
 		num, err := strconv.Atoi(line)
 		if err != nil {
-			fmt.Print("❌ Введите число: ")
+			fmt.Print("Введите число: ")
 			continue
 		}
 		return num
@@ -29,6 +35,18 @@ func readInt(reader *bufio.Reader) int {
 }
 
 // pause делает паузу на заданное число миллисекунд — для драматичности вывода
-func pause(ms int) {
-	time.Sleep(time.Duration(ms) * time.Millisecond)
+//func pause(ms int) {
+//	time.Sleep(time.Duration(ms) * time.Millisecond)
+//}
+
+func pause_short() {
+	time.Sleep(time.Duration(300) * time.Millisecond)
+}
+
+func pause_midle() {
+	time.Sleep(time.Duration(600) * time.Millisecond)
+}
+
+func pause_long() {
+	time.Sleep(time.Duration(900) * time.Millisecond)
 }

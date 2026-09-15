@@ -5,13 +5,14 @@ import (
 	"fmt"
 )
 
+const healPrice = 30
+const damageBaf = 10
+const damageBafPrice = 75
+
 func VisitShop(hero Player, reader *bufio.Reader) {
-	healPrice := 30
-	damageBaf := 10
-	damageBafPrice := 75
 	for {
-		fmt.Println("\n--- 🏪 Магазин ---")
-		fmt.Printf("Золото: %d💰\n", hero.GetGold())
+		fmt.Println("\n--- Магазин ---")
+		fmt.Printf("Золото: %d\n", hero.GetGold())
 		fmt.Printf("1. Полное исцеление (цена: %d)\n", healPrice)
 		fmt.Printf("2. Улучшить оружие +%d урона (цена: %d)\n", damageBaf, damageBafPrice)
 		fmt.Println("3. Уйти")
@@ -24,7 +25,7 @@ func VisitShop(hero Player, reader *bufio.Reader) {
 			} else {
 				fmt.Println("Недостаточно золота!")
 			}
-			pause(500)
+			pause_midle()
 		case 2:
 			if hero.SpendGold(damageBafPrice) {
 				hero.UpgradeWeapon(damageBaf)
@@ -32,7 +33,7 @@ func VisitShop(hero Player, reader *bufio.Reader) {
 			} else {
 				fmt.Println("Недостаточно золота!")
 			}
-			pause(500)
+			pause_midle()
 		case 3:
 			fmt.Println("Возвращайтесь ещё!")
 			return
