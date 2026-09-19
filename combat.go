@@ -3,60 +3,81 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"math/rand"
 )
 
-func StartCombat(player Player, monster *Monster, reader *bufio.Reader) {
-	fmt.Printf("\n⚔️ НАЧАЛСЯ БОЙ! %s сталкивается лицом к лицу с %s! ⚔️\n", player.GetName(), monster.Kind)
-	pause(700)
+func StartCombat(party []Player, monsters *[]Monster, reader *bufio.Reader) {
+	fmt.Println("\nБОЙ НАЧАЛСЯ!")
+	pause_short()
+	Party_Stats(party)
 
-	for player.GetHealth() > 0 && monster.Hp > 0 {
-		player.ShowStats()
-		fmt.Printf("😈 %s | HP: %d | Урон: %d-%d\n", monster.Kind, monster.Hp, monster.MinPower, monster.MaxPower)
-		pause(400)
+	for IsPartyAlive(party) && IsMonstersAlive(*monsters) {
 
-		// --- ХОД ИГРОКА ---
-		playerDmg := player.GetDamage(reader)
-		monster.Hp -= playerDmg
-		fmt.Printf("💥 Вы нанесли %s %d урона! (Осталось HP монстра: %d)\n", monster.Kind, playerDmg, monster.Hp)
-		pause(700)
+		// --- ФАЗА ИГРОКОВ ---
+		for _ , player := range party {
+			if player.GetHealth() <=0 {
+				continue
+			} 
+			fmt.Printf("\n Ходит %s", player.GetName())
+			pause_short()
+			monster := SelectTarget(monsters, reader)
+			pause_midle()
+			damage := player.GetDamage(reader)
+			pause_midle()
+			monster.Hp -= damage
+			if monster.Hp <= 0 {
+				fmt.Printf("\nПобеда! %s повержен!\n", monster.Kind)
+				pause_midle()
+				player.AddGold(monster.GoldDrop)
 
-		if monster.Hp <= 0 {
-			fmt.Printf("\n🎉 Победа! %s повержен!\n", monster.Kind)
-			pause(600)
-			player.AddGold(monster.GoldDrop)
+				requiredXP := int(100 * math.Pow(1.5, float64(player.GetLevel()-1)))
+				leveledUp := player.AddXP(monster.DropXP, requiredXP)
+				fmt.Printf("Получено золота: %d | Получено опыта: %d\n", monster.GoldDrop, monster.DropXP)
+				pause_midle()
 
-			leveledUp := player.AddXP(monster.DropXP, 100)
-			fmt.Printf("💰 Получено золота: %d | ✨ Получено опыта: %d\n", monster.GoldDrop, monster.DropXP)
-			pause(600)
-
-			if leveledUp {
-				newHP := player.LevelUp()
-				fmt.Printf("🆙 УРОВЕНЬ ПОВЫШЕН! Твое максимальное здоровье теперь: %d HP!\n", newHP)
-				pause(700)
+				if leveledUp {
+					newHP := player.LevelUp()
+					fmt.Printf("УРОВЕНЬ ПОВЫШЕН! Твое максимальное здоровье теперь: %d HP!\n", newHP)
+					pause_midle()
+				}
 			}
-			return
+			if !IsMonstersAlive(*monsters) {
+				fmt.Printf("Бой окончен, победа!")
+				return
+			}
 		}
 
-		// --- ХОД МОНСТРА ---
-		fmt.Printf("\n🥊 Ход врага: %s замахивается...\n", monster.Kind)
-		pause(600)
+		fmt.Printf("")
+		pause_midle()
 
-		// Считаем случайный урон монстра
-		monsterDmg := monster.MinPower
-		if monster.MaxPower > monster.MinPower {
-			monsterDmg = rand.Intn(monster.MaxPower-monster.MinPower+1) + monster.MinPower
-		}
+		// --- ФАЗА МОНСТРОВ ---
+		for _, monster := range *monsters {
+			if monster.Hp <= 0 {
+				continue
+			}
 
-		currentHP := player.GetHealth()
-		player.SetHealth(currentHP - monsterDmg)
-		pause(600)
+			var alivePlayers []Player
+			for _, p := range party {
+				if p.GetHealth() > 0 {
+					alivePlayers = append(alivePlayers, p)
+				}
+			}
 
-		if player.GetHealth() <= 0 {
-			fmt.Printf("\n💀 Вы погибли в бою с %s... Игра окончена.\n", monster.Kind)
-			return
-		}
-		fmt.Println("-------------------------------------------")
-		pause(300)
+			if len(alivePlayers) == 0 {
+				break 
+			}
+
+			targetPlayer := alivePlayers[rand.Intn(len(alivePlayers))]
+
+			monsterDmg := monster.MinPower
+			if monster.MaxPower > monster.MinPower {
+				monsterDmg = rand.Intn(monster.MaxPower-monster.MinPower+1) + monster.MinPower
+			}
+			fmt.Printf("%s атакует %s и наносит %d урона!\n", monster.Kind, targetPlayer.GetName(), monsterDmg)
+			currentHP := targetPlayer.GetHealth()
+			targetPlayer.SetHealth(currentHP - monsterDmg)
+			pause_midle()
+		}	
 	}
 }

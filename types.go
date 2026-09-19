@@ -17,16 +17,16 @@ type Warrior struct {
 }
 
 type Mage struct {
-	Name      string
-	Health    int
-	MaxHP     int
-	Mana      int
-	MaxMana   int
-	MinDamage int
-	MaxDamage int
-	Lvl       int
-	XP        int
-	Gold      int
+	Name       string
+	Health     int
+	MaxHP      int
+	Mana       int
+	MaxMana    int
+	MinDamage  int
+	MaxDamage  int
+	Lvl        int
+	XP         int
+	Gold       int
 	FreezeNext bool
 }
 
@@ -48,6 +48,7 @@ type Rogue struct {
 	Health    int
 	MaxHP     int
 	Energy    int
+	MaxEnergy int
 	MinDamage int
 	MaxDamage int
 	Lvl       int
@@ -61,6 +62,7 @@ type Hunter struct {
 	Health    int
 	MaxHP     int
 	PetHp     int
+	MaxPetHp  int
 	Lvl       int
 	XP        int
 	Gold      int
@@ -68,7 +70,7 @@ type Hunter struct {
 	MaxDamage int
 }
 
-// Структура монстра из твоего скриншота
+// Monster описывает один вид противника
 type Monster struct {
 	Kind     string
 	Hp       int
@@ -76,6 +78,8 @@ type Monster struct {
 	MaxPower int
 	DropXP   int
 	GoldDrop int
+	Weight   int
+	MinLvl   int
 }
 
 // Интерфейсы
@@ -95,6 +99,7 @@ type Player interface {
 	AddGold(gold int)
 	LevelUp() int
 	GetGold() int
+	GetLevel() int
 	SpendGold(amount int) bool
 	FullHeal()
 	UpgradeWeapon(bonusDmg int)
